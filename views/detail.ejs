@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <%include ./common/css.ejs %>
+  </head>
+  <body>
+    <%include ./common/header.ejs %>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <!--<embed src="<%=movie.flash%>" align="middle"
+                       allowFullScreen="true" quality="high"
+                       width="720" height="600" type="application/x-shockwave-flash">-->
+                <video src="<%=movie.flash%>" controls="controls"
+                       poster="<%=movie.poster%>" width="720" height="600"></video>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3>评论区</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="media-list">
+                            <li class="media">
+                                <div class="pull-left">
+                                    <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">Scott</h4>
+                                    <p>Really Nice</p>
+                                    <div class="media">
+                                        <div class="pull-left">
+                                            <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                        </div>
+                                        <div class="media-body">
+                                            <h4 class="media-heading">Scott</h4>
+                                            <p>Really Nice</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <hr>
+                            </li>
+
+                            <li class="media">
+                                <div class="pull-left">
+                                    <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                </div>
+                                <div class="media-body">
+                                    <h4 class="media-heading">Scott</h4>
+                                    <p>Really Nice</p>
+                                </div>
+                                <hr>
+                            </li>
+
+
+                        </ul>
+                        <form action="/user/comment" method="post">
+                            <div class="form-group">
+                                <textarea rows="3" class="form-control"></textarea>
+                            </div>
+                            <button class="btn btn-primary" type="submit">提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <dl class="dl-horizontal">
+                    <dt>电影名称</dt>
+                    <dd><%=movie.title%></dd>
+                    <dt>导演</dt>
+                    <dd><%=movie.doctor%></dd>
+                    <dt>国家</dt>
+                    <dd><%=movie.country%></dd>
+                    <dt>语言</dt>
+                    <dd><%=movie.language%></dd>
+                    <dt>上映年份</dt>
+                    <dd><%=movie.year%></dd>
+                    <dt>简介</dt>
+                    <dd><%=movie.summary%></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+
+    <%include ./common/script.ejs %>
+  </body>
+</html>
