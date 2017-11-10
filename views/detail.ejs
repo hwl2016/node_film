@@ -21,43 +21,33 @@
                     </div>
                     <div class="panel-body">
                         <ul class="media-list">
+                            <% comments.forEach(function(item) { %>
                             <li class="media">
                                 <div class="pull-left">
                                     <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
                                 </div>
                                 <div class="media-body">
-                                    <h4 class="media-heading">Scott</h4>
-                                    <p>Really Nice</p>
-                                    <div class="media">
-                                        <div class="pull-left">
-                                            <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
-                                        </div>
-                                        <div class="media-body">
-                                            <h4 class="media-heading">Scott</h4>
-                                            <p>Really Nice</p>
-                                        </div>
-                                    </div>
-
+                                    <h4 class="media-heading"><%=item.from.name%></h4>
+                                    <p><%=item.content%></p>
+                                    <!--<div class="media">-->
+                                        <!--<div class="pull-left">-->
+                                            <!--<img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">-->
+                                        <!--</div>-->
+                                        <!--<div class="media-body">-->
+                                            <!--<h4 class="media-heading">Scott</h4>-->
+                                            <!--<p>Really Nice</p>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
                                 </div>
                                 <hr>
                             </li>
-
-                            <li class="media">
-                                <div class="pull-left">
-                                    <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
-                                </div>
-                                <div class="media-body">
-                                    <h4 class="media-heading">Scott</h4>
-                                    <p>Really Nice</p>
-                                </div>
-                                <hr>
-                            </li>
-
-
+                            <% }) %>
                         </ul>
                         <form action="/user/comment" method="post">
+                            <input type="hidden" name="comment[movie]" value="<%=movie._id%>">
+                            <input type="hidden" name="comment[from]" value="<%=user._id%>">
                             <div class="form-group">
-                                <textarea rows="3" class="form-control"></textarea>
+                                <textarea rows="3" name="comment[content]" class="form-control"></textarea>
                             </div>
                             <button class="btn btn-primary" type="submit">提交</button>
                         </form>

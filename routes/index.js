@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const Movie = require('../model/movie');
+const Comment = require('../model/comment');
 const Auth = require('../middleware/auth');
 
 /* GET home page. */
@@ -24,10 +25,20 @@ router.get('/movie/:id', (req, res, next) => {
         if(err) {
             console.log(err);
         }
-        res.render('detail', {
-            title: '电影-' + movie.title,
-            movie: movie
-        })
+
+        Comment
+            .find({movie: id})
+            .populate('from', 'name')   // 使用populate来做关联查询
+            .exec((err, comments) => {
+                if(err) {
+                    console.log(err);
+                }
+                res.render('detail', {
+                    title: '电影-' + movie.title,
+                    movie: movie,
+                    comments: comments
+                })
+            })
     })
 
 });
@@ -148,6 +159,36 @@ router.get('/signin', (req, res, next) => {
     res.render('signin', {
         title: '登录'
     })
+});
+
+// Comment
+router.post('/admin/comment', Auth.signinRequired, (req, res, next) => {
+    var _comment = req.body.comment;
+    var movieId = _comment.movie;
+    var comment = new Comment(_comment);
+
+    comment.save((err, comment) => {
+        if(err) {
+            console.log(err);
+        }
+        res.redirect(`/movie/${movieId}`);
+    })
+
+});
+
+// 用户提交评论
+router.post('/user/comment', Auth.signinRequired, (req, res, next) => {
+    var _comment = req.body.comment;
+    var movieId = _comment.movie;
+    var comment = new Comment(_comment);
+
+    comment.save((err, comment) => {
+        if(err) {
+            console.log(err);
+        }
+        res.redirect(`/movie/${movieId}`);
+    })
+
 });
 
 module.exports = router;

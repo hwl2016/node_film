@@ -5,6 +5,6 @@ var mongoose = require('mongoose');
 var UserSchema = require('../schemas/user');
 var db = mongoose.createConnection('localhost', 'film');
 
-var User = db.model('User', UserSchema);
+var User = mongoose.model('User', UserSchema);
 
 module.exports = User;

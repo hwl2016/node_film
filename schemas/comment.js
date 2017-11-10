@@ -2,8 +2,20 @@
  * Created by huwl on 2017/7/15.
  */
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
 
-var CommentSchema = new mongoose.Schema({
+var CommentSchema = new Schema({
+    movie: {type: ObjectId, ref: 'Movie'},
+    from: {type: ObjectId, ref: 'User'},
+    reply: [
+        {
+            from: {type: ObjectId, ref: 'User'},
+            to: {type: ObjectId, ref: 'User'},
+            content: String,
+        }
+    ],
+    content: String,
     meta: {
         createAt: {
             type: Date,
