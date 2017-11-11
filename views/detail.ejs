@@ -24,33 +24,52 @@
                             <% comments.forEach(function(item) { %>
                             <li class="media">
                                 <div class="pull-left">
-                                    <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                    <a class="comment" href="#comments" data-cid="<%=item._id%>" data-tid="<%=item.from._id%>">
+                                        <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                    </a>
                                 </div>
                                 <div class="media-body">
                                     <h4 class="media-heading"><%=item.from.name%></h4>
                                     <p><%=item.content%></p>
-                                    <!--<div class="media">-->
-                                        <!--<div class="pull-left">-->
-                                            <!--<img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">-->
-                                        <!--</div>-->
-                                        <!--<div class="media-body">-->
-                                            <!--<h4 class="media-heading">Scott</h4>-->
-                                            <!--<p>Really Nice</p>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
+                                    <% if(item.reply && item.reply.length > 0) { %>
+                                        <% item.reply.forEach(function(reply) { %>
+                                        <div class="media">
+                                            <div class="pull-left">
+                                                <a class="comment" href="#comments" data-cid="<%=item._id%>" data-tid="<%=reply.from._id%>">
+                                                    <img src="/images/haha.jpg" alt="" class="media-object" style="width:64px;height:64px;">
+                                                </a>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">
+                                                    <%=reply.from.name%>
+                                                    <span class="text-info">
+                                                        &nbsp;回复&nbsp;<%=reply.to.name%>：
+                                                    </span>
+                                                </h4>
+                                                <p><%=reply.content%></p>
+                                            </div>
+                                        </div>
+                                        <%})%>
+                                    <%}%>
                                 </div>
                                 <hr>
                             </li>
                             <% }) %>
                         </ul>
-                        <form action="/user/comment" method="post">
-                            <input type="hidden" name="comment[movie]" value="<%=movie._id%>">
-                            <input type="hidden" name="comment[from]" value="<%=user._id%>">
-                            <div class="form-group">
-                                <textarea rows="3" name="comment[content]" class="form-control"></textarea>
-                            </div>
-                            <button class="btn btn-primary" type="submit">提交</button>
-                        </form>
+                        <div id="comments">
+                            <form id="commentForm" action="/user/comment" method="post">
+                                <% if(user) { %>
+                                <input type="hidden" name="comment[movie]" value="<%=movie._id%>">
+                                <div class="form-group">
+                                    <textarea rows="3" name="comment[content]" class="form-control"></textarea>
+                                </div>
+                                <button class="btn btn-primary" type="submit">提交</button>
+                                <input type="hidden" name="comment[from]" value="<%=user._id%>">
+                                <%}else {%>
+                                <a href="#" class="navbar-link" data-toggle="modal" data-target="#signinModal">登录后评论</a>
+                                <%}%>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +93,62 @@
         </div>
     </div>
 
+    <div id="signinModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/user/signin" method="post">
+                    <div class="modal-header">登录</div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="signinName">用户名</label>
+                            <input type="text" name="user[name]" id="signinName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="signinPassword">密码</label>
+                            <input type="password" name="user[password]" id="signinPassword" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" type="button" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-success" type="submit">提交</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <%include ./common/script.ejs %>
+    <script>
+        $(function() {
+            $('.comment').click(function() {
+                var $this = $(this);
+                var toId = $this.data('tid');
+                var comnentId = $this.data('cid');
+
+                if($('#toId').length > 0) {
+                    $('#toId').val(toId)
+                }else {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        value: toId,
+                        id: 'toId',
+                        name: 'comment[tid]'
+                    }).appendTo('#commentForm')
+                }
+
+                if($('#comnentId').length > 0) {
+                    $('#comnentId').val(comnentId)
+                }else {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        value: comnentId,
+                        id: 'comnentId',
+                        name: 'comment[cid]'
+                    }).appendTo('#commentForm')
+                }
+            })
+        })
+    </script>
   </body>
 </html>

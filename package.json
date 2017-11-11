@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "set NODE_ENV=product && supervisor ./bin/www",
-    "dev": "set PORT=9000 && set NODE_ENV=dev && supervisor ./bin/www",
+    "dev": "set PORT=3000 && set NODE_ENV=dev && supervisor ./bin/www",
     "debug": "set PORT=9001 && node debug ./bin/www"
   },
   "dependencies": {

@@ -8,11 +8,11 @@ const Auth = require('../middleware/auth');
 router.post('/signup', (req, res, next) => {
     var _user = req.body.user;
 
-    User.find({name: _user.name}, (err, user) => {  //先查询一下看看是否已经有了已存在的用户名
+    User.findOne({name: _user.name}, (err, user) => {  //先查询一下看看是否已经有了已存在的用户名
         if(err) {
             console.log(err);
         }
-        if(user.length != 0) {
+        if(user) {
             return res.redirect('/signin');
         }else {
             var user = new User(_user);

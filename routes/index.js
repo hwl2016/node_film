@@ -29,10 +29,12 @@ router.get('/movie/:id', (req, res, next) => {
         Comment
             .find({movie: id})
             .populate('from', 'name')   // 使用populate来做关联查询
+            .populate('reply.from reply.to', 'name')   // 使用populate来做关联查询
             .exec((err, comments) => {
                 if(err) {
                     console.log(err);
                 }
+                // console.log(comments);
                 res.render('detail', {
                     title: '电影-' + movie.title,
                     movie: movie,
@@ -180,14 +182,36 @@ router.post('/admin/comment', Auth.signinRequired, (req, res, next) => {
 router.post('/user/comment', Auth.signinRequired, (req, res, next) => {
     var _comment = req.body.comment;
     var movieId = _comment.movie;
-    var comment = new Comment(_comment);
 
-    comment.save((err, comment) => {
-        if(err) {
-            console.log(err);
-        }
-        res.redirect(`/movie/${movieId}`);
-    })
+    if(_comment.cid) {  // 用户回复
+        Comment.findById(_comment.cid, (err, comment) => {
+            var reply = {
+                from: _comment.from,
+                to: _comment.tid,
+                content: _comment.content
+            }
+
+            comment.reply.push(reply)
+
+            comment.save((err, comment) => {
+                if(err) {
+                    console.log(err);
+                }
+                res.redirect(`/movie/${movieId}`);
+            })
+        })
+    }else { // 普通的评论
+        var comment = new Comment(_comment);
+
+        comment.save((err, comment) => {
+            if(err) {
+                console.log(err);
+            }
+            res.redirect(`/movie/${movieId}`);
+        })
+    }
+
+
 
 });
 

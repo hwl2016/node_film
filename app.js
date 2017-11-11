@@ -13,7 +13,12 @@ var index = require('./routes/index');
 var user = require('./routes/user');
 
 var app = express();
+
 var dbUrl = 'mongodb://localhost/film';
+
+mongoose.connect(dbUrl, {
+    useMongoClient: true
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,6 +31,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
+    resave:false,//添加这行
+    saveUninitialized: true,//添加这行
     secret: 'Huwl',
     store: new mongoStore({ //将session持久化到mongodb中去
         url: dbUrl, //mongodb的url
