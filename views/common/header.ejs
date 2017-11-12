@@ -1,8 +1,20 @@
 <div class="container">
     <div class="row">
-        <div class="page-header">
+        <div class="page-header clearfix">
             <h1>Film</h1>
-            <small>重度科幻迷</small>
+            <div class="col-md-4">
+                <small>重度科幻迷</small>
+            </div>
+            <div class="col-md-8">
+                <form method="GET" action="/results">
+                    <div class="input-group col-sm-4 pull-right">
+                        <input type="text" class="form-control" name="q">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default">搜索</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

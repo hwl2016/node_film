@@ -2,21 +2,14 @@ const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
 const Movie = require('../model/movie');
+const Category = require('../model/category');
 const Comment = require('../model/comment');
 const Auth = require('../middleware/auth');
 
+const Index = require('../controllers/index');
+
 /* GET home page. */
-router.get('/', function(req, res, next) {
-    Movie.fetch(function(err, movies) {
-        if(err) {
-            console.log(err);
-        }
-        res.render('index', {
-            title: '首页',
-            movies: movies
-        });
-    })
-});
+router.get('/', Index.index);
 
 
 router.get('/movie/:id', (req, res, next) => {
@@ -45,37 +38,84 @@ router.get('/movie/:id', (req, res, next) => {
 
 });
 
-router.get('/admin/movie', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
-	res.render('admin', {
-		title: '电影后台录入页',
-        movie: {
-		    _id: '',
-            title: '',
-            doctor: '',
-            country: '',
-            language: '',
-            poster: '',
-            year: '',
-            flash: '',
-            summary: ''
+router.get('/admin/movie/new', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+    Category.find({}, (err, categories) => {
+        if(err) {
+            console.log(err);
         }
-	})
+        res.render('admin', {
+            title: '电影后台录入页',
+            categories: categories,
+            movie: {
+                _id: '',
+                title: '',
+                doctor: '',
+                country: '',
+                language: '',
+                poster: '',
+                year: '',
+                flash: '',
+                summary: ''
+            }
+        })
+    })
+
+});
+
+router.get('/admin/category/new', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+    res.render('category_admin', {
+        title: '电影分类后台录入页',
+        category: {}
+    })
+});
+
+router.get('/admin/category/list', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+    Category.fetch(function(err, categories) {
+        if(err) {
+            console.log(err);
+        }
+        res.render('category_list', {
+            title: '电影分类列表',
+            categories: categories
+        });
+    });
+});
+
+router.post('/admin/category', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+    var _category = req.body.category;
+    var category = new Category(_category);
+
+    category.save((err, category) => {
+        if(err) {
+            console.log(err);
+        }
+        res.redirect('/admin/category/list');
+    })
 });
 
 //admin update movie
-router.get('/admin/update/:id', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+router.get('/admin/movie/update/:id', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
     var id = req.params.id;
     if(id) {
         Movie.findById(id, (err, movie) => {
-        res.render('admin', {
-            title: '后台更新页',
-            movie: movie
+            if(err) {
+                console.log(err)
+            }
+            Category.find({}, (err, categories) => {
+                if(err) {
+                    console.log(err)
+                }
+                res.render('admin', {
+                    title: '后台更新页',
+                    movie: movie,
+                    categories: categories
+                })
+            })
         })
-    })
     }
 })
 
-//新建&更新
+//新建&更新电影
 router.post('/admin/movie/new', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
     var id = req.body.movie._id;
     var movieObj = req.body.movie;
@@ -87,7 +127,7 @@ router.post('/admin/movie/new', Auth.signinRequired, Auth.adminRequired, (req, r
                 console.log(err);
             }
             _movie = _.extend(movie, movieObj);
-            _movie.save((err, movie) => {
+            _movie.save((err, movie) => {   // 保存电影
                 if(err) {
                     console.log(err);
                 }
@@ -95,29 +135,53 @@ router.post('/admin/movie/new', Auth.signinRequired, Auth.adminRequired, (req, r
             });
         })
     }else { //新增
-        _movie = new Movie({
-            doctor: movieObj.doctor,
-            title: movieObj.title,
-            country: movieObj.country,
-            language: movieObj.language,
-            year: movieObj.year,
-            poster: movieObj.poster,
-            summary: movieObj.summary,
-            flash: movieObj.flash
-        });
+        _movie = new Movie(movieObj);
 
-        _movie.save((err, movie) => {
+        var categoryId = _movie.category;
+        var categoryName = movieObj.categoryName;
+
+        _movie.save((err, movie) => {   // 保存电影
             if(err) {
                 console.log(err);
             }
-            res.redirect('/movie/' + movie._id);
+
+            if(categoryId) {
+                // 将电影保存到分类中去
+                Category.findById(categoryId, (err, category) => {
+                    category.movies.push(movie._id);
+                    category.save((err, category) => {
+                        res.redirect('/movie/' + movie._id);
+                    })
+                })
+            }else if(categoryName) { // 自定义的分类
+
+                var category = new Category({
+                    name: categoryName,
+                    movies: [movie._id]
+                })
+
+                category.save((err, category) => {
+                    if(err) {
+                        console.log(err)
+                    }
+                    console.log('===>>>category.save')
+                    movie.category = category._id;
+                    movie.save((err, m) => {
+                        if(err) {
+                            console.log(err)
+                        }
+                        console.log('===>>>movie.save')
+                        res.redirect('/movie/' + m._id);
+                    })
+                })
+            }
         })
     }
 
 })
 
 //列表页
-router.get('/admin/list', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
+router.get('/admin/movie/list', Auth.signinRequired, Auth.adminRequired, (req, res, next) => {
     Movie.fetch(function(err, movies) {
         if(err) {
             console.log(err);
@@ -148,6 +212,9 @@ router.delete('/admin/list', Auth.signinRequired, Auth.adminRequired, (req, res,
     }
 
 });
+
+// 查询  分页
+router.get('/results', Index.search);
 
 //注册页面
 router.get('/signup', (req, res, next) => {
@@ -210,9 +277,6 @@ router.post('/user/comment', Auth.signinRequired, (req, res, next) => {
             res.redirect(`/movie/${movieId}`);
         })
     }
-
-
-
 });
 
 module.exports = router;

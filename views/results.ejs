@@ -12,14 +12,13 @@
     			<h1><%= title %></h1>
     			<small>重度科幻迷</small>
     		</div> -->
-            <% categories.forEach(function(item) { %>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3><a href="/results?cat=<%=item._id%>&page=1"><%=item.name%></a></h3>
+                    <h3><%=keyword%></h3>
                 </div>
                 <div class="panel-body">
-                    <%if(item.movies && item.movies.length > 0) {%>
-                    <% item.movies.forEach(function(item) { %>
+                    <%if(movies && movies.length > 0) {%>
+                    <% movies.forEach(function(item) { %>
                     <div class="col-md-2">
                         <div class="thumbnail">
                             <a href="/movie/<%=item._id%>">
@@ -40,7 +39,19 @@
                     <%}%>
                 </div>
             </div>
-            <% }) %>
+            <ul class="pagination">
+                <% for(var i = 0; i < totalPage; i++) { %>
+                    <%if(currentPage === (i + 1)) {%>
+                        <li class="active">
+                            <span><%=currentPage%></span>
+                        </li>
+                    <% }else { %>
+                        <li>
+                            <a href="/results?<%=query%>&page=<%=i + 1%>"><%=i + 1%></a>
+                        </li>
+                    <% } %>
+                <% } %>
+            </ul>
     	</div>
     </div>
 

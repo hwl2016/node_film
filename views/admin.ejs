@@ -9,53 +9,93 @@
   <div class="container">
       <div class="row">
           <form action="/admin/movie/new" method="post" class="form-horizontal">
+              <div class="form-group">
+                  <label for="douban" class="col-sm-2 control-label">豆瓣同步</label>
+                  <div class="col-sm-9">
+                      <input type="text" id="douban" class="form-control">
+                  </div>
+              </div>
+              <%if(movie._id) {%>
               <input type="hidden" value="<%=movie._id%>" name="movie[_id]" />
+              <%}%>
               <div class="form-group">
                   <label for="inputTitle" class="col-sm-2 control-label">电影名称</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputTitle" class="form-control" name="movie[title]" value="<%=movie.title%>">
+                      <input type="text" id="inputTitle" class="form-control"
+                             name="movie[title]" value="<%=movie.title%>">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="inputCategory" class="col-sm-2 control-label">电影分类</label>
+                  <div class="col-sm-9">
+                      <input type="text" id="inputCategory" class="form-control"
+                             name="movie[categoryName]" value="<%=movie.categoryName%>">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="" class="col-sm-2 control-label">分类选择</label>
+                  <div class="col-sm-9">
+                      <% categories.forEach(function(item) { %>
+                      <label for="" class="radio-inline">
+                          <%if(movie._id) {%>
+                          <input type="radio" name="movie[category]" id="" value="<%=item._id%>"
+                              <%=(item._id.toString() == movie.category.toString() ? 'checked' : '')%>>
+                            <%=item.name%>
+                          <%}else {%>
+                          <input type="radio" name="movie[category]" id="" value="<%=item._id%>">
+                            <%=item.name%>
+                          <%}%>
+                      </label>
+                      <%})%>
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputDoctor" class="col-sm-2 control-label">电影导演</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputDoctor" class="form-control" name="movie[doctor]" value="<%=movie.doctor%>">
+                      <input type="text" id="inputDoctor" class="form-control"
+                             name="movie[doctor]" value="<%=movie.doctor%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputCountry" class="col-sm-2 control-label">国家</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputCountry" class="form-control" name="movie[country]" value="<%=movie.country%>">
+                      <input type="text" id="inputCountry" class="form-control"
+                             name="movie[country]" value="<%=movie.country%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputLanguage" class="col-sm-2 control-label">语言</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputLanguage" class="form-control" name="movie[language]" value="<%=movie.language%>">
+                      <input type="text" id="inputLanguage" class="form-control"
+                             name="movie[language]" value="<%=movie.language%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputPoster" class="col-sm-2 control-label">海报地址</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputPoster" class="form-control" name="movie[poster]" value="<%=movie.poster%>">
+                      <input type="text" id="inputPoster" class="form-control"
+                             name="movie[poster]" value="<%=movie.poster%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputFlash" class="col-sm-2 control-label">片源地址</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputFlash" class="form-control" name="movie[flash]" value="<%=movie.flash%>">
+                      <input type="text" id="inputFlash" class="form-control"
+                             name="movie[flash]" value="<%=movie.flash%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputYear" class="col-sm-2 control-label">上映年份</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputYear" class="form-control" name="movie[year]" value="<%=movie.year%>">
+                      <input type="text" id="inputYear" class="form-control"
+                             name="movie[year]" value="<%=movie.year%>">
                   </div>
               </div>
               <div class="form-group">
                   <label for="inputSummary" class="col-sm-2 control-label">电影简介</label>
                   <div class="col-sm-9">
-                      <input type="text" id="inputSummary" class="form-control" name="movie[summary]" value="<%=movie.summary%>">
+                      <input type="text" id="inputSummary" class="form-control"
+                             name="movie[summary]" value="<%=movie.summary%>">
                   </div>
               </div>
               <div class="form-group">
@@ -68,5 +108,35 @@
   </div>
 
     <%include ./common/script.ejs %>
+  <script>
+      $(function() {
+          // 发送豆瓣的jsonp请求
+          $('#douban').blur(function() {
+              var $this = $(this);
+              var id = $this.val();
+              if(id) {
+                  $.ajax({
+                      url: 'https://api.douban.com/v2/movie/subject/' + id,
+                      type: 'GET',
+                      cache: true,
+                      crossDomain: true,
+                      dataType: 'jsonp',
+                      success: function(data) {
+                          $('#inputTitle').val(data.title)
+                          $('#inputDoctor').val(data.directors[0].name)
+                          $('#inputCountry').val(data.countries[0])
+                          $('#inputLanguage').val('')
+                          $('#inputPoster').val(data.images.large)
+                          $('#inputYear').val(data.year)
+                          $('#inputSummary').val(data.summary)
+                      },
+                      error: function() {
+                          console.log('error');
+                      }
+                  })
+              }
+          })
+      })
+  </script>
   </body>
 </html>
